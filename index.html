@@ -144,16 +144,23 @@
                 <div class="flex-grow border-t border-black/10 dark:border-white/10"></div>
             </div>
 
-            <label class="w-full bg-white dark:bg-ios-cardDark border border-black/5 dark:border-white/5 hover:border-ios-accent/50 dark:hover:border-ios-accent/50 p-5 rounded-ios-widget shadow-lg cursor-pointer flex flex-col items-center justify-center gap-2 active-scale transition-all group">
-                <div class="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-ios-secondaryLabel group-hover:text-ios-accent group-hover:bg-ios-accent/10 transition-colors duration-300">
-                    <i data-lucide="cloud-download" class="w-5 h-5"></i>
-                </div>
-                <div class="space-y-0.5 text-center mt-1">
-                    <p class="text-xs font-bold text-ios-label dark:text-ios-labelDark">Pulihkan dari Cadangan</p>
-                    <p class="text-[9px] text-ios-secondaryLabel leading-relaxed">Unggah file <span class="font-bold">.json</span> untuk memuat profil, mutasi, dan daftar belanja Anda.</p>
-                </div>
-                <input type="file" onchange="importBackupJSON(event)" class="hidden" accept=".json">
-            </label>
+            <!-- Tombol Import File Cadangan di Onboarding -->
+            <div class="space-y-2 w-full">
+                <button type="button" onclick="triggerFileInput('onboarding-file-input')" class="w-full bg-white dark:bg-ios-cardDark border border-black/5 dark:border-white/5 hover:border-ios-accent/50 dark:hover:border-ios-accent/50 p-5 rounded-ios-widget shadow-lg cursor-pointer flex flex-col items-center justify-center gap-2 active-scale transition-all group">
+                    <div class="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-ios-secondaryLabel group-hover:text-ios-accent group-hover:bg-ios-accent/10 transition-colors duration-300">
+                        <i data-lucide="cloud-download" class="w-5 h-5"></i>
+                    </div>
+                    <div class="space-y-0.5 text-center mt-1">
+                        <p class="text-xs font-bold text-ios-label dark:text-ios-labelDark">Pilih File Cadangan (.json)</p>
+                        <p class="text-[9px] text-ios-secondaryLabel leading-relaxed">Ketuk di sini untuk memilih file <span class="font-bold">.json</span> dari penyimpanan Anda.</p>
+                    </div>
+                </button>
+                <input type="file" id="onboarding-file-input" onchange="importBackupJSON(event)" class="sr-only" accept=".json,application/json,text/plain,*/*">
+
+                <button type="button" onclick="openPasteJsonModal()" class="w-full py-2.5 text-center text-ios-accent hover:underline text-[10px] font-bold uppercase tracking-wider">
+                    📋 Atau Tempel Teks Backup JSON
+                </button>
+            </div>
         </div>
     </div>
 
@@ -360,7 +367,7 @@
                         <div class="flex justify-between items-center mb-2">
                             <div>
                                 <span class="text-[10px] font-bold uppercase tracking-widest text-ios-secondaryLabel">Metrik Kinerja</span>
-                                <h4 class="text-base font-extrabold mt-0.5">Aliran Likuiditas</h4>
+                                <h4 class="text-base font-extrabold mt-0.5">Aliran Likuiditas Tahunan</h4>
                             </div>
                             <div class="flex gap-1 bg-black/5 dark:bg-white/5 p-1 rounded-xl text-[9px] font-bold">
                                 <button id="btn-chart-weekly" onclick="updateChartPeriod('weekly')" class="px-2.5 py-1 rounded-lg text-ios-secondaryLabel transition-all">Mingguan</button>
@@ -666,12 +673,18 @@
                             <i data-lucide="database" class="w-3.5 h-3.5"></i>
                             <span>Ekspor Backup</span>
                         </button>
-                        <label class="py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl text-xs font-bold active-scale transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                        <button type="button" onclick="triggerFileInput('settings-backup-input')" class="py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl text-xs font-bold active-scale transition-all flex items-center justify-center gap-1.5 cursor-pointer">
                             <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                             <span>Impor Backup</span>
-                            <input type="file" id="backup-file-input" onchange="importBackupJSON(event)" class="hidden" accept=".json">
-                        </label>
+                        </button>
+                        <input type="file" id="settings-backup-input" onchange="importBackupJSON(event)" class="sr-only" accept=".json,application/json,text/plain,*/*">
                     </div>
+
+                    <!-- Tombol Alternatif Tempel Teks JSON -->
+                    <button type="button" onclick="openPasteJsonModal()" class="w-full py-2.5 bg-ios-accent/10 hover:bg-ios-accent/20 text-ios-accent rounded-xl text-xs font-bold active-scale transition-all flex items-center justify-center gap-1.5">
+                        <i data-lucide="clipboard" class="w-3.5 h-3.5"></i>
+                        <span>Pulihkan Menggunakan Teks JSON (Salin & Tempel)</span>
+                    </button>
 
                     <div class="flex items-center justify-between pt-4 border-t border-black/5 dark:border-white/5">
                         <div>
@@ -725,6 +738,35 @@
 
     </div>
 
+    <!-- MODAL POPUP: TEMPEL TEKS JSON CADANGAN (FALLBACK RESMI) -->
+    <div id="paste-json-modal" class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-xs flex items-end md:items-center justify-center z-50 transition-opacity duration-300 opacity-0 pointer-events-none hidden">
+        <div class="bg-white dark:bg-ios-cardDark w-full md:max-w-md rounded-t-[2.5rem] md:rounded-ios-widget border-t md:border border-black/5 dark:border-white/5 shadow-2xl p-6 space-y-4 transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-ios-accent flex items-center justify-center text-white">
+                        <i data-lucide="clipboard" class="w-4 h-4"></i>
+                    </div>
+                    <h4 class="font-extrabold text-base">Pulihkan Lewat Teks JSON</h4>
+                </div>
+                <button onclick="togglePasteJsonModal(false)" class="p-1.5 rounded-full bg-black/5 dark:bg-white/5 active-scale">
+                    <i data-lucide="x" class="w-4 h-4 text-ios-secondaryLabel"></i>
+                </button>
+            </div>
+            
+            <p class="text-[10px] text-ios-secondaryLabel leading-relaxed">
+                Salin seluruh teks dari file cadangan <span class="font-bold">.json</span> Anda lalu tempelkan di kotak bawah ini:
+            </p>
+
+            <form onsubmit="handlePasteJsonSubmit(event)" class="space-y-4">
+                <textarea id="paste-json-textarea" required rows="7" placeholder='Contoh: { "Heaven Sipangkar": { "transaksi": [ ... ] } }' class="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl p-3.5 text-xs font-mono outline-none focus:ring-1 focus:ring-ios-accent resize-none"></textarea>
+
+                <button type="submit" class="w-full py-3.5 bg-ios-accent hover:opacity-90 active:scale-98 text-white font-bold text-xs rounded-xl uppercase tracking-wider transition-all shadow-lg shadow-ios-accent/20">
+                    Proses & Pulihkan Akun
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL POPUP: KELOLA KATEGORI KUSTOM -->
     <div id="category-manager-modal" class="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-xs flex items-end md:items-center justify-center z-50 transition-opacity duration-300 opacity-0 pointer-events-none hidden">
         <div class="bg-white dark:bg-ios-cardDark w-full md:max-w-md rounded-t-[2.5rem] md:rounded-ios-widget border-t md:border border-black/5 dark:border-white/5 shadow-2xl p-6 space-y-4 transform translate-y-full md:translate-y-0 md:scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto no-scrollbar">
@@ -744,7 +786,6 @@
                 Tambah atau sesuaikan kategori transaksi Anda. Setiap kategori pengeluaran dapat memiliki batas pagu anggaran sendiri.
             </p>
 
-            <!-- Form Tambah Kategori -->
             <form onsubmit="handleAddNewCategory(event)" class="p-4 bg-black/5 dark:bg-white/5 rounded-2xl space-y-3">
                 <span class="text-[9px] font-extrabold uppercase tracking-widest text-ios-accent">+ Tambah Kategori Baru</span>
                 
@@ -769,7 +810,6 @@
                 </button>
             </form>
 
-            <!-- Daftar Kategori yang Ada -->
             <div class="space-y-2">
                 <span class="text-[10px] font-bold text-ios-secondaryLabel uppercase tracking-widest">Daftar Kategori Aktif</span>
                 <div id="category-manager-list" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar">
@@ -1445,7 +1485,7 @@
             if (!container) return;
             container.innerHTML = '';
 
-            (appState.categories || []).forEach((cat, idx) => {
+            (appState.categories || []).forEach((cat) => {
                 const isExp = cat.type === 'pengeluaran';
                 container.insertAdjacentHTML('beforeend', `
                     <div class="flex items-center justify-between p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
@@ -1608,7 +1648,6 @@
                     if (withdrawBtn) withdrawBtn.classList.add('hidden');
                 }
 
-                // Pengaturan status lock badge
                 if (isLocked) {
                     if (lockBadge) {
                         lockBadge.className = "text-[8px] font-extrabold px-2 py-0.5 rounded-full uppercase bg-ios-amber/10 text-ios-amber flex items-center gap-1";
@@ -2571,30 +2610,132 @@
             showToast("Backup database berhasil diunduh!", "success");
         }
 
+        // ==========================================
+        // SISTEM IMPOR & PEMULIHAN CADANGAN ROBUST
+        // ==========================================
+        function triggerFileInput(id) {
+            const input = document.getElementById(id);
+            if (input) {
+                input.value = '';
+                input.click();
+            }
+        }
+
         function importBackupJSON(e) {
-            const file = e.target.files[0];
+            const file = e.target.files && e.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
-                    const parsed = JSON.parse(evt.target.result);
-                    const keys = Object.keys(parsed);
-                    if (keys.length > 0) {
-                        masterProfiles = parsed;
-                        activeProfileName = keys[0];
-                        appState = sanitizeAppState(masterProfiles[activeProfileName]);
-                        saveState();
-                        enterDashboardView();
-                        showToast("Basis data berhasil dipulihkan!", "success");
-                    } else {
-                        showToast("Format file tidak valid.", "error");
-                    }
+                    const content = evt.target.result;
+                    const parsed = JSON.parse(content);
+                    processImportedData(parsed);
                 } catch(err) {
-                    showToast("Gagal membaca file JSON.", "error");
+                    console.error("Kesalahan parsing JSON:", err);
+                    showToast("Gagal membaca file JSON: " + (err.message || "Format tidak valid"), "error");
+                } finally {
+                    e.target.value = '';
                 }
             };
+            reader.onerror = function() {
+                showToast("Gagal mengakses file cadangan dari perangkat.", "error");
+                e.target.value = '';
+            };
             reader.readAsText(file);
-            e.target.value = '';
+        }
+
+        function openPasteJsonModal() {
+            document.getElementById('paste-json-textarea').value = '';
+            togglePasteJsonModal(true);
+        }
+
+        function togglePasteJsonModal(show) {
+            const modal = document.getElementById('paste-json-modal');
+            const box = modal ? modal.querySelector('div') : null;
+            if (!modal || !box) return;
+
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('pointer-events-none', 'opacity-0');
+                    modal.classList.add('opacity-100');
+                    box.classList.remove('translate-y-full', 'scale-95');
+                    box.classList.add('translate-y-0', 'scale-100');
+                }, 20);
+            } else {
+                box.classList.add('translate-y-full', 'scale-95');
+                modal.classList.add('pointer-events-none', 'opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        function handlePasteJsonSubmit(e) {
+            if (e) e.preventDefault();
+            const textarea = document.getElementById('paste-json-textarea');
+            const text = textarea ? textarea.value.trim() : '';
+
+            if (!text) {
+                showToast("Teks JSON belum diisi.", "error");
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(text);
+                processImportedData(parsed);
+                togglePasteJsonModal(false);
+            } catch(err) {
+                showToast("Teks JSON tidak valid: " + err.message, "error");
+            }
+        }
+
+        function processImportedData(parsed) {
+            if (!parsed || typeof parsed !== 'object') {
+                throw new Error("Struktur file bukan objek JSON.");
+            }
+
+            // KASUS 1: Array transaksi mentah
+            if (Array.isArray(parsed)) {
+                const defaultName = "Akun Pulih";
+                masterProfiles = {};
+                const profile = JSON.parse(JSON.stringify(INITIAL_ACCOUNT_TEMPLATE));
+                profile.transaksi = parsed;
+                masterProfiles[defaultName] = sanitizeAppState(profile);
+                activeProfileName = defaultName;
+            }
+            // KASUS 2: Objek profil tunggal langsung di root
+            else if (Array.isArray(parsed.transaksi) || Array.isArray(parsed.categories) || parsed.totalSaldo !== undefined) {
+                const profileName = parsed.profileName || parsed.nama || "Akun Utama";
+                masterProfiles = {};
+                masterProfiles[profileName] = sanitizeAppState(parsed);
+                activeProfileName = profileName;
+            }
+            // KASUS 3: Format standar NexaOS Multi-Profile (Contoh: { "Heaven Sipangkar": { ... } })
+            else {
+                const keys = Object.keys(parsed);
+                if (keys.length === 0) {
+                    throw new Error("Objek JSON tidak memiliki data akun.");
+                }
+
+                masterProfiles = {};
+                keys.forEach(k => {
+                    if (parsed[k] && typeof parsed[k] === 'object') {
+                        masterProfiles[k] = sanitizeAppState(parsed[k]);
+                    }
+                });
+
+                const validKeys = Object.keys(masterProfiles);
+                if (validKeys.length === 0) {
+                    throw new Error("Tidak ditemukan profil valid di dalam file.");
+                }
+
+                activeProfileName = validKeys[0];
+            }
+
+            appState = masterProfiles[activeProfileName];
+            saveState();
+            enterDashboardView();
+            showToast(`Basis data berhasil dipulihkan! Membuka akun: "${activeProfileName}"`, "success");
         }
 
         function exportToCSV() {
@@ -2660,7 +2801,6 @@
                 return;
             }
 
-            // Peringatan jika pengeluaran melebihi equity bebas belanja
             if (tipe === 'pengeluaran') {
                 const currentEquity = appState.equityAktif !== undefined ? appState.equityAktif : appState.totalSaldo;
                 if (jumlah > currentEquity && appState.alokasiTerkunciBulanIni) {
@@ -2884,7 +3024,6 @@
             if (e) e.preventDefault();
             const val = parseFloat(document.getElementById('savings-allocation-input').value) || 0;
             
-            // Set alokasi & langsung mengunci otomatis
             appState.alokasiTabunganBulanIni = val;
             appState.alokasiTerkunciBulanIni = val > 0;
             appState.bulanTerakhirDiinput = getYearMonthString();
@@ -2897,7 +3036,7 @@
         }
 
         // ==========================================
-        // CHART & UTILITIES
+        // CHART (12 BULAN DENGAN METRIK BERJALAN)
         // ==========================================
         let chartPeriod = 'monthly';
 
@@ -2931,16 +3070,38 @@
             fillGrad.addColorStop(0, 'rgba(10, 132, 255, 0.2)');
             fillGrad.addColorStop(1, 'rgba(10, 132, 255, 0)');
 
-            const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'];
-            let data = [0, 0, 0, 0, 0, 0];
+            let labels = [];
+            let data = [];
 
-            (appState.transaksi || []).forEach(t => {
-                const m = new Date(t.tanggal).getMonth();
-                if (m >= 0 && m < 6) {
-                    if (t.tipe === 'pemasukan') data[m] += t.jumlah;
-                    else data[m] -= t.jumlah;
-                }
-            });
+            if (chartPeriod === 'weekly') {
+                labels = ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'];
+                data = [0, 0, 0, 0];
+                const now = new Date();
+                const curM = now.getMonth();
+                const curY = now.getFullYear();
+
+                (appState.transaksi || []).forEach(t => {
+                    const d = new Date(t.tanggal);
+                    if (d.getMonth() === curM && d.getFullYear() === curY) {
+                        const day = d.getDate();
+                        const wIdx = Math.min(3, Math.floor((day - 1) / 7));
+                        if (t.tipe === 'pemasukan') data[wIdx] += t.jumlah;
+                        else data[wIdx] -= t.jumlah;
+                    }
+                });
+            } else {
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                data = new Array(12).fill(0);
+
+                (appState.transaksi || []).forEach(t => {
+                    const d = new Date(t.tanggal);
+                    const m = d.getMonth();
+                    if (!isNaN(m) && m >= 0 && m < 12) {
+                        if (t.tipe === 'pemasukan') data[m] += t.jumlah;
+                        else data[m] -= t.jumlah;
+                    }
+                });
+            }
 
             myChart = new Chart(ctx, {
                 type: 'line',
@@ -2952,8 +3113,9 @@
                         backgroundColor: fillGrad,
                         fill: true,
                         borderWidth: 2.5,
-                        tension: 0.4,
-                        pointRadius: 0
+                        tension: 0.35,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
                     }]
                 },
                 options: {
@@ -2962,7 +3124,7 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { grid: { display: false }, ticks: { color: '#8E8E93', font: { size: 9 } } },
-                        y: { border: { display: false }, grid: { display: false }, ticks: { color: '#8E8E93', font: { size: 9 }, callback: v => 'Rp ' + (v/1000000) + 'jt' } }
+                        y: { border: { display: false }, grid: { display: false }, ticks: { color: '#8E8E93', font: { size: 9 }, callback: v => 'Rp ' + (v/1000000).toFixed(1) + 'jt' } }
                     }
                 }
             });
